@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, Calendar, DollarSign, FileText, Send } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { supabase } from '../utils/supabaseClient';
 import { useLang } from '../context/LanguageContext';
 import { allCurrencies } from '../translations';
 import { getUser } from '../utils/auth';
@@ -30,26 +30,50 @@ export const OrderSubmission = () => {
     e.preventDefault();
     setLoading(true);
     
-    const data = new FormData();
-    data.append('user_id', user.id);
-    data.append('title', formData.title);
-    data.append('service_type', 'Custom Project'); // Required by backend
-    data.append('description', formData.description);
-    data.append('deadline', formData.deadline);
-    data.append('budget', formData.budget);
-    data.append('currency', currency.symbol);
-    if (formData.file) {
-      data.append('attachment', formData.file); // Backend expects 'attachment'
-    }
-
     try {
-      await api.post('/orders/create.php', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      let attachment_url = null;
+
+      // Handle file upload if exists
+      if (formData.file) {
+        const fileExt = formData.file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('attachments')
+          .upload(filePath, formData.file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from('attachments')
+          .getPublicUrl(filePath);
+        
+        attachment_url = publicUrlData.publicUrl;
+      }
+
+      // Create order
+      const { error: insertError } = await supabase
+        .from('orders')
+        .insert([
+          {
+            user_id: user.id,
+            title: formData.title,
+            description: formData.description,
+            deadline: formData.deadline,
+            budget: formData.budget,
+            currency: currency.symbol,
+            attachment_url: attachment_url
+          }
+        ]);
+
+      if (insertError) throw insertError;
+
       setSuccess(true);
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
-      console.error("Order creation failed");
+      console.error("Order creation failed:", err.message);
+      alert('Order creation failed: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -67,8 +91,6 @@ export const OrderSubmission = () => {
             <h2 className="text-3xl font-bold text-white mb-2">Submit New Order</h2>
             <p className="text-gray-400">Provide details about your assignment or project for our experts.</p>
           </div>
-
-
 
           {success ? (
             <div className="text-center py-10">

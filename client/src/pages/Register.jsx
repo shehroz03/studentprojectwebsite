@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, UserPlus, Eye, EyeOff } from 'lucide-react';
-import api from '../services/api';
+import { supabase } from '../utils/supabaseClient';
 import { getUser } from '../utils/auth';
 import { useLang } from '../context/LanguageContext';
 
@@ -20,7 +20,7 @@ export const Register = () => {
 
   useEffect(() => {
     if (user) navigate('/dashboard');
-  }, []);
+  }, [user, navigate]);
 
   if (user) return null;
 
@@ -37,11 +37,35 @@ export const Register = () => {
     }
 
     try {
-      await api.post('/auth/register.php', { name, email, password });
-      navigate('/login');
+      // 1. Sign up user
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (authError) throw authError;
+
+      if (!data.user) {
+        throw new Error('Registration failed. Please try again.');
+      }
+
+      // 2. Create profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          { id: data.user.id, name, role: 'user' }
+        ]);
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        // Note: Even if profile creation fails, the user is still created in Auth.
+      }
+
+      setError('Registration successful! Please check your email for verification if required, or Login now.');
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || err.message || t('register','failed'));
+      setError(err.message || t('register','failed'));
     } finally {
       setLoading(false);
     }
@@ -60,7 +84,11 @@ export const Register = () => {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl mb-6 text-sm">
+          <div className={`p-4 rounded-xl mb-6 text-sm ${
+            error.includes('successful') 
+              ? 'bg-green-500/10 border border-green-500/20 text-green-500' 
+              : 'bg-red-500/10 border border-red-500/20 text-red-500'
+          }`}>
             {error}
           </div>
         )}

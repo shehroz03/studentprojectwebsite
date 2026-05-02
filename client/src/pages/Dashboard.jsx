@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Clock, CheckCircle, Plus, MessageSquare, CreditCard, User, Download } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { supabase } from '../utils/supabaseClient';
 import { getUser } from '../utils/auth';
 import { useLang } from '../context/LanguageContext';
 
@@ -16,28 +16,42 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
+
     const fetchOrders = async () => {
       try {
-        const response = await api.get(`/orders/list.php?user_id=${user.id}`);
-        setOrders(response.data);
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setOrders(data || []);
       } catch (err) {
-        console.error('Failed to fetch orders');
+        console.error('Failed to fetch orders:', err.message);
       } finally {
         setLoading(false);
       }
     };
+
     fetchOrders();
 
     const fetchNotifs = async () => {
+      // Simplistic notification fetch: count messages for this user
       try {
-        const res = await api.get(`/notifications/unread?user_id=${user.id}&role=${user.role}`);
-        setNotifs(res.data);
+        const { count, error } = await supabase
+          .from('messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('receiver_id', user.id);
+        
+        if (!error) setNotifs(prev => ({ ...prev, chat: count || 0 }));
       } catch (err) {}
     };
+
     fetchNotifs();
-    const timer = setInterval(fetchNotifs, 5000);
+    const timer = setInterval(fetchNotifs, 10000); // 10s polling for chat count
     return () => clearInterval(timer);
-  }, []);
+  }, [user, navigate]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -104,34 +118,29 @@ export const Dashboard = () => {
                       <tr key={order.id} className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group">
                         <td className="px-6 py-5">
                           <div className="text-white font-medium group-hover:text-accent-blue transition-colors">{order.title}</div>
-                          <div className="text-gray-500 text-xs">ID: #BST-{order.id}</div>
+                          <div className="text-gray-500 text-xs">ID: #BST-{order.id.slice(0, 8)}</div>
                         </td>
-                        <td className="px-6 py-5 text-gray-300">{order.deadline}</td>
+                        <td className="px-6 py-5 text-gray-300">{new Date(order.deadline).toLocaleDateString()}</td>
                         <td className="px-6 py-5">
                           <div className="text-white font-semibold">
                             {order.currency || '$'}{parseFloat(order.budget).toLocaleString()}
                           </div>
-                          {order.admin_budget && order.status === 'pending' && (
-                            <div className="text-[10px] text-accent-cyan font-bold mt-1 animate-pulse">
-                              Offer: {order.currency || '$'}{order.admin_budget}
-                            </div>
-                          )}
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex flex-col space-y-2">
                             <span className={`px-3 py-1 rounded-full text-[10px] w-fit font-bold uppercase tracking-wider ${getStatusColor(order.status)}`}>
                               {t('status', order.status) || order.status}
                             </span>
-                            {order.final_file && (
+                            {order.attachment_url && (
                               <a 
-                                href={`${API_BASE_URL.replace('/api', '')}/uploads/${order.final_file}`} 
+                                href={order.attachment_url} 
                                 target="_blank" 
                                 rel="noreferrer"
                                 onClick={(e) => e.stopPropagation()}
                                 className="flex items-center space-x-1.5 text-accent-cyan hover:text-white transition-colors text-xs font-bold bg-white/5 px-2 py-1.5 rounded-lg border border-white/10 hover:bg-accent-cyan/20"
                               >
                                 <Download className="w-3.5 h-3.5" />
-                                <span>Final Work</span>
+                                <span>View File</span>
                               </a>
                             )}
                           </div>

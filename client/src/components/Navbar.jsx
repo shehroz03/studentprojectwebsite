@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, GraduationCap, ChevronDown, Bell } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { getUser } from '../utils/auth';
+import { supabase } from '../utils/supabaseClient';
 import { NotificationBell } from './NotificationBell';
 
 const LANGUAGES = [
@@ -33,7 +34,8 @@ export const Navbar = () => {
     return () => document.removeEventListener('click', close);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('user');
     navigate('/');
     window.location.reload();

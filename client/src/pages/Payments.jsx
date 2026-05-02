@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, ArrowLeft, Upload, CheckCircle, Clock, AlertCircle, Copy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { supabase } from '../utils/supabaseClient';
 import { useLang } from '../context/LanguageContext';
 import { allCurrencies } from '../translations';
 import { getUser } from '../utils/auth';
@@ -25,21 +25,22 @@ export const Payments = () => {
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
     fetchData();
-    if (user.role === 'admin') {
-      api.post('/notifications/mark-read', { user_id: user.id, role: user.role, type: 'payments' }).catch(() => {});
-    }
-  }, []);
+  }, [user, navigate]);
 
   const fetchData = async () => {
     try {
       const [ordersRes, paymentsRes] = await Promise.all([
-        api.get(`/orders/list.php?user_id=${user.id}`),
-        api.get(`/payments/list.php?user_id=${user.id}`)
+        supabase.from('orders').select('*').eq('user_id', user.id),
+        supabase.from('payments').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
       ]);
-      setOrders(ordersRes.data);
-      setPayments(paymentsRes.data);
+      
+      if (ordersRes.error) throw ordersRes.error;
+      if (paymentsRes.error) throw paymentsRes.error;
+
+      setOrders(ordersRes.data || []);
+      setPayments(paymentsRes.data || []);
     } catch (e) {
-      console.error(e);
+      console.error('Fetch data failed:', e.message);
     } finally {
       setLoading(false);
     }
@@ -56,17 +57,42 @@ export const Payments = () => {
     if (!selectedOrder || !file || !amount) return;
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append('order_id', selectedOrder.id);
-    formData.append('user_id', user.id);
-    formData.append('amount', amount);
-    formData.append('currency', currency.symbol);
-    formData.append('proof', file);
-
     try {
-      await api.post('/payments/upload-proof.php', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      let proof_url = null;
+
+      // Upload proof to storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `payments/${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('attachments')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('attachments')
+        .getPublicUrl(filePath);
+      
+      proof_url = publicUrlData.publicUrl;
+
+      // Insert payment record
+      const { error: insertError } = await supabase
+        .from('payments')
+        .insert([
+          {
+            order_id: selectedOrder.id,
+            user_id: user.id,
+            amount: amount,
+            currency: currency.symbol,
+            proof_url: proof_url,
+            status: 'pending'
+          }
+        ]);
+
+      if (insertError) throw insertError;
+
       setSuccess(true);
       setSelectedOrder(null);
       setFile(null);
@@ -74,7 +100,8 @@ export const Payments = () => {
       fetchData();
       setTimeout(() => setSuccess(false), 4000);
     } catch (e) {
-      console.error(e);
+      console.error('Upload proof failed:', e.message);
+      alert('Upload failed: ' + e.message);
     } finally {
       setUploading(false);
     }
@@ -117,9 +144,7 @@ export const Payments = () => {
           </motion.div>
         )}
 
-
-
-        {/* ── Main Grid ─────────────────────────────────── */}
+        {/* Main Grid */}
         <div className="grid lg:grid-cols-2 gap-8">
 
           {/* Upload Proof */}
@@ -165,7 +190,7 @@ export const Payments = () => {
                   <option value="" className="bg-gray-900">{t('payments','selectOrderPlaceholder')}</option>
                   {orders.map(o => (
                     <option key={o.id} value={o.id} className="bg-gray-900">
-                      #BST-{o.id} — {o.title}
+                      #BST-{o.id.slice(0, 8)} — {o.title}
                     </option>
                   ))}
                 </select>
@@ -241,7 +266,7 @@ export const Payments = () => {
                 {payments.map(p => (
                   <div key={p.id} className="bg-white/5 rounded-xl p-4 flex items-center justify-between hover:bg-white/8 transition-colors">
                     <div>
-                      <div className="text-white font-medium text-sm">Order #BST-{p.order_id}</div>
+                      <div className="text-white font-medium text-sm">Order #BST-{p.order_id?.slice(0, 8)}</div>
                       <div className="text-gray-500 text-xs mt-1">
                         {new Date(p.created_at).toLocaleDateString()}
                       </div>

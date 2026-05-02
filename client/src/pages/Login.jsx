@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
-import api from '../services/api';
+import { supabase } from '../utils/supabaseClient';
 import { getUser } from '../utils/auth';
 import { useLang } from '../context/LanguageContext';
 
@@ -22,7 +22,7 @@ export const Login = () => {
       if (user.role === 'admin') navigate('/admin');
       else navigate('/dashboard');
     }
-  }, []);
+  }, [user, navigate]);
 
   if (user) return null;
 
@@ -39,21 +39,40 @@ export const Login = () => {
     }
 
     try {
-      const response = await api.post('/auth/login.php', { email, password });
-      const loggedUser = response.data?.user;
-      
-      if (!loggedUser || !loggedUser.id) {
-        setError(response.data?.error || 'Login failed: Invalid server response');
-        return;
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) throw authError;
+
+      // Fetch profile to get role
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileError && profileError.code !== 'PGRST116') { // PGRST116 is not found
+        console.error('Profile fetch error:', profileError);
       }
+
+      const loggedUser = {
+        id: data.user.id,
+        email: data.user.email,
+        name: profile?.name || data.user.email.split('@')[0],
+        role: profile?.role || 'user'
+      };
+
       localStorage.setItem('user', JSON.stringify(loggedUser));
+      
       if (loggedUser.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.response?.data?.error || t('login','failed'));
+      setError(err.message || t('login','failed'));
     } finally {
       setLoading(false);
     }
