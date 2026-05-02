@@ -11,3 +11,6 @@ server/uploads/*
 !server/uploads/.gitkeep
 .vscode/
 .DS_Store
+!assets/
+!index.html
+!favicon.svg
