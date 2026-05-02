@@ -1,21 +1,23 @@
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  
-  # Redirect everything to the client/dist folder
-  RewriteRule ^$ client/dist/index.html [L]
-  
-  # Allow API and Uploads to work normally
-  RewriteCond %{REQUEST_URI} !^/api/
-  RewriteCond %{REQUEST_URI} !^/server/
-  RewriteCond %{REQUEST_URI} !^/uploads/
-  
-  # Map other requests to client/dist
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ client/dist/$1 [L]
-  
-  # React routing fallback
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . client/dist/index.html [L]
+    RewriteEngine On
+    RewriteBase /
+
+    # Root request ko client/dist par bhejain
+    RewriteRule ^$ client/dist/index.html [L]
+
+    # API aur Uploads ko skip karein
+    RewriteCond %{REQUEST_URI} ^/api/ [OR]
+    RewriteCond %{REQUEST_URI} ^/uploads/ [OR]
+    RewriteCond %{REQUEST_URI} ^/server/
+    RewriteRule ^ - [L]
+
+    # Files aur folders check karein, agar nahi hain to client/dist par bhejain
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ client/dist/$1 [L]
+
+    # React routing fallback
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . client/dist/index.html [L]
 </IfModule>
