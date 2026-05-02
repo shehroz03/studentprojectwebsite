@@ -4,6 +4,11 @@ require_once '../config.php';
 $data = json_decode(file_get_contents("php://input"));
 
 if (!empty($data->email) && !empty($data->password)) {
+    // Email format validation
+    if (!filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
+        sendResponse(["error" => "Please enter a valid email address"], 400);
+    }
+
     $query = "SELECT id, name, email, password, role FROM users WHERE email = :email LIMIT 0,1";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':email', $data->email);
