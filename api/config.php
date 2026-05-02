@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// TODO: UPDATE THESE WITH YOUR HOSTINGER DATABASE CREDENTIALS
 $host = "localhost";
 $db_name = "bst_hub";
 $username = "root";
@@ -19,7 +20,8 @@ try {
     $conn = new PDO("mysql:host=" . $host . ";dbname=" . $db_name, $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $exception) {
-    echo json_encode(["error" => "Connection error: " . $exception->getMessage()]);
+    http_response_code(500);
+    echo json_encode(["error" => "Database Connection Error: " . $exception->getMessage()]);
     exit();
 }
 

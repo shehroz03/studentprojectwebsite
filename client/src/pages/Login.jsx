@@ -41,8 +41,9 @@ export const Login = () => {
     try {
       const response = await api.post('/auth/login.php', { email, password });
       const loggedUser = response.data?.user;
+      
       if (!loggedUser || !loggedUser.id) {
-        setError('Login failed: Invalid server response');
+        setError(response.data?.error || 'Login failed: Invalid server response');
         return;
       }
       localStorage.setItem('user', JSON.stringify(loggedUser));
