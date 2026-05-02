@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, UserPlus, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
+import { getUser } from '../utils/auth';
 import { useLang } from '../context/LanguageContext';
 
 export const Register = () => {
@@ -15,7 +16,7 @@ export const Register = () => {
   const navigate = useNavigate();
   const { t } = useLang();
 
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const user = getUser();
 
   useEffect(() => {
     if (user) navigate('/dashboard');

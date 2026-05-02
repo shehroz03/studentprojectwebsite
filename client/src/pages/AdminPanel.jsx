@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, ShoppingBag, DollarSign, CheckCircle, Search, Filter, Eye, Edit, X, Download, MessageSquare, Send, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api, { API_BASE_URL } from '../services/api';
+import { getUser } from '../utils/auth';
 
 export const AdminPanel = () => {
   const [orders, setOrders] = useState([]);
@@ -14,7 +15,7 @@ export const AdminPanel = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedPayment, setSelectedPayment] = useState(null);
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = getUser();
   const navigate = useNavigate();
 
   useEffect(() => {

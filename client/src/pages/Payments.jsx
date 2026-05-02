@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useLang } from '../context/LanguageContext';
 import { allCurrencies } from '../translations';
+import { getUser } from '../utils/auth';
 
 export const Payments = () => {
   const [orders, setOrders] = useState([]);
@@ -19,7 +20,7 @@ export const Payments = () => {
   const navigate = useNavigate();
   const { t, currency, setCurrency, formatAmount } = useLang();
 
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const user = getUser();
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }

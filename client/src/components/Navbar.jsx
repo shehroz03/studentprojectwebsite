@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, GraduationCap, ChevronDown, Bell } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
+import { getUser } from '../utils/auth';
 import { NotificationBell } from './NotificationBell';
 
 const LANGUAGES = [
@@ -17,7 +18,7 @@ export const Navbar = () => {
   const { lang, setLang, t } = useLang();
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const user = getUser();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);

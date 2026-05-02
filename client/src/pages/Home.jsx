@@ -2,12 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Star, Shield, Zap, ExternalLink, Code2, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getUser } from '../utils/auth';
 import { useLang } from '../context/LanguageContext';
 
 export const Home = () => {
   const navigate = useNavigate();
   const { t, isRTL } = useLang();
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const user = getUser();
 
   const handleOrderClick = () => {
     if (user) {

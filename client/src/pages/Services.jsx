@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Code, BookOpen, GraduationCap, Lightbulb, PenTool, Layers, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getUser } from '../utils/auth';
 import { useLang } from '../context/LanguageContext';
 
 const services = [
@@ -50,7 +51,7 @@ const services = [
 export const Services = () => {
   const navigate = useNavigate();
   const { t, isRTL } = useLang();
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const user = getUser();
 
   const handleBookService = () => {
     if (user) {

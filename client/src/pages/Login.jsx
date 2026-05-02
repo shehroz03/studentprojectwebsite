@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
+import { getUser } from '../utils/auth';
 import { useLang } from '../context/LanguageContext';
 
 export const Login = () => {
@@ -14,7 +15,7 @@ export const Login = () => {
   const navigate = useNavigate();
   const { t } = useLang();
 
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const user = getUser();
 
   useEffect(() => {
     if (user) {
@@ -39,7 +40,11 @@ export const Login = () => {
 
     try {
       const response = await api.post('/auth/login.php', { email, password });
-      const loggedUser = response.data.user;
+      const loggedUser = response.data?.user;
+      if (!loggedUser || !loggedUser.id) {
+        setError('Login failed: Invalid server response');
+        return;
+      }
       localStorage.setItem('user', JSON.stringify(loggedUser));
       if (loggedUser.role === 'admin') {
         navigate('/admin');

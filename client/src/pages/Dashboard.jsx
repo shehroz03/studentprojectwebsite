@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Clock, CheckCircle, Plus, MessageSquare, CreditCard, User, Download } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import api, { API_BASE_URL } from '../services/api';
+import api from '../services/api';
+import { getUser } from '../utils/auth';
 import { useLang } from '../context/LanguageContext';
 
 export const Dashboard = () => {
@@ -10,7 +11,7 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [notifs, setNotifs] = useState({ chat: 0, payments: 0, orders: 0 });
   const { t, currency, formatAmount } = useLang();
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = getUser();
   const navigate = useNavigate();
 
   useEffect(() => {

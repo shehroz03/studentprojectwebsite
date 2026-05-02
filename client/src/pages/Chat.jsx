@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Paperclip, Download, ArrowLeft, Shield, User, X, MessageSquare } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
+import { getUser } from '../utils/auth';
 
 export const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -19,7 +20,7 @@ export const Chat = () => {
   const bottomRef = useRef();
   const msgCountRef = useRef(0); // tracks previous message count
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const user = getUser();
 
   // ── On mount: load user list → derive adminId for students ────────────────
   useEffect(() => {

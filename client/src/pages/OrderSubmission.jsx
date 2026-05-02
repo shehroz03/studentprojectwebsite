@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useLang } from '../context/LanguageContext';
 import { allCurrencies } from '../translations';
+import { getUser } from '../utils/auth';
 
 export const OrderSubmission = () => {
   const [formData, setFormData] = useState({
@@ -16,7 +17,7 @@ export const OrderSubmission = () => {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = getUser();
   const navigate = useNavigate();
   const { currency, setCurrency } = useLang();
 
