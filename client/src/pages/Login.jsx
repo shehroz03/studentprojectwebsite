@@ -55,8 +55,8 @@ export const Login = () => {
 
       let userRole = profile?.role || 'user';
 
-      // Auto-promote hardcoded admin email
-      if (data.user.email === 'admin@bsthub.com') {
+      // Auto-promote hardcoded admin emails or specific names
+      if (data.user.email.includes('admin') || profile?.name?.toUpperCase() === 'SHEHROZ') {
         userRole = 'admin';
         // Ensure it's updated in the database too
         await supabase

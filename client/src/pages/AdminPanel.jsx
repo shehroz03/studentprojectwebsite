@@ -60,6 +60,21 @@ export const AdminPanel = () => {
       
       if (error) throw error;
       setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+
+      // Notify User
+      const order = orders.find(o => o.id === orderId);
+      let msg = '';
+      if (newStatus === 'in-progress') msg = `Your order #${orderId.slice(0,8)} has been Accepted and is now In Progress!`;
+      else if (newStatus === 'completed') msg = `Your order #${orderId.slice(0,8)} has been Completed!`;
+      else if (newStatus === 'rejected') msg = `Your order #${orderId.slice(0,8)} has been Rejected.`;
+      
+      if (msg && order?.user_id) {
+        await supabase.from('notifications').insert([{
+          user_id: order.user_id,
+          type: 'order_update',
+          message: msg
+        }]);
+      }
     } catch (err) {
       alert("Failed to update status: " + err.message);
     }
@@ -74,6 +89,20 @@ export const AdminPanel = () => {
       
       if (error) throw error;
       setPayments(payments.map(p => p.id === paymentId ? { ...p, status: newStatus } : p));
+
+      // Notify User
+      const payment = payments.find(p => p.id === paymentId);
+      let msg = '';
+      if (newStatus === 'verified') msg = `Your payment of ${payment?.currency || '$'}${payment?.amount} for order #${payment?.order_id?.slice(0,8)} has been Verified!`;
+      else if (newStatus === 'rejected') msg = `Your payment for order #${payment?.order_id?.slice(0,8)} was Rejected.`;
+      
+      if (msg && payment?.user_id) {
+        await supabase.from('notifications').insert([{
+          user_id: payment.user_id,
+          type: 'payment_update',
+          message: msg
+        }]);
+      }
     } catch (err) {
       alert("Failed to update payment status: " + err.message);
     }
@@ -109,6 +138,16 @@ export const AdminPanel = () => {
       if (updateError) throw updateError;
 
       setOrders(orders.map(o => o.id === selectedOrder.id ? { ...o, status: 'completed' } : o));
+      
+      // Notify User
+      if (selectedOrder?.user_id) {
+        await supabase.from('notifications').insert([{
+          user_id: selectedOrder.user_id,
+          type: 'order_delivered',
+          message: `Your final assignment for order #${selectedOrder.id.slice(0,8)} has been delivered and is available for download!`
+        }]);
+      }
+
       setSelectedOrder(null);
       alert("Assignment delivered successfully!");
     } catch (err) {
