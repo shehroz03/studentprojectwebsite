@@ -129,13 +129,6 @@ export const AdminPanel = () => {
             <h1 className="text-3xl font-bold text-white mb-2">Admin Command Center</h1>
             <p className="text-gray-400">Manage orders, students, payments, and system status.</p>
           </div>
-          <button 
-            onClick={() => navigate('/chat')}
-            className="flex items-center space-x-2 bg-accent-blue hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20"
-          >
-            <MessageSquare className="w-5 h-5" />
-            <span>Support Chat</span>
-          </button>
         </div>
 
         {/* Admin Stats */}

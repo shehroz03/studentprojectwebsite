@@ -50,10 +50,11 @@ export const Register = () => {
       }
 
       // 2. Create profile
+      const userRole = email === 'admin@bsthub.com' ? 'admin' : 'user';
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
-          { id: data.user.id, name, role: 'user' }
+          { id: data.user.id, name, role: userRole }
         ]);
 
       if (profileError) {

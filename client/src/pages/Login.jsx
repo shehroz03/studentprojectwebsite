@@ -53,15 +53,23 @@ export const Login = () => {
         .eq('id', data.user.id)
         .single();
 
-      if (profileError && profileError.code !== 'PGRST116') { // PGRST116 is not found
-        console.error('Profile fetch error:', profileError);
+      let userRole = profile?.role || 'user';
+
+      // Auto-promote hardcoded admin email
+      if (data.user.email === 'admin@bsthub.com') {
+        userRole = 'admin';
+        // Ensure it's updated in the database too
+        await supabase
+          .from('profiles')
+          .update({ role: 'admin' })
+          .eq('id', data.user.id);
       }
 
       const loggedUser = {
         id: data.user.id,
         email: data.user.email,
         name: profile?.name || data.user.email.split('@')[0],
-        role: profile?.role || 'user'
+        role: userRole
       };
 
       localStorage.setItem('user', JSON.stringify(loggedUser));

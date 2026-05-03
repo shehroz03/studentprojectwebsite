@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, CheckCircle, MessageSquare, AlertCircle, Trash2, X } from 'lucide-react';
-import api from '../services/api';
+import { supabase } from '../utils/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const NotificationBell = ({ user }) => {
@@ -11,10 +11,16 @@ export const NotificationBell = ({ user }) => {
   const fetchNotifications = async () => {
     if (!user) return;
     try {
-      const res = await api.get(`/notifications/list.php?user_id=${user.id}&role=${user.role}`);
-      setNotifications(res.data);
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .or(`user_id.eq.${user.id},user_id.is.null`)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setNotifications(data || []);
     } catch (err) {
-      console.error("Failed to fetch notifications");
+      console.error("Failed to fetch notifications:", err.message);
     }
   };
 
@@ -26,10 +32,15 @@ export const NotificationBell = ({ user }) => {
 
   const markAsRead = async (id) => {
     try {
-      await api.post('/notifications/mark-read.php', { notification_id: id });
-      setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: 1 } : n));
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id);
+
+      if (error) throw error;
+      setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: true } : n));
     } catch (err) {
-      console.error("Failed to mark as read");
+      console.error("Failed to mark as read:", err.message);
     }
   };
 

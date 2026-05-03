@@ -4,6 +4,8 @@ import { Save, User, Mail, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getUser } from '../utils/auth';
 
+import { supabase } from '../utils/supabaseClient';
+
 export const ProfileSettings = () => {
   const navigate = useNavigate();
   const user = getUser();
@@ -13,6 +15,7 @@ export const ProfileSettings = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [passLoading, setPassLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   if (!user) {
@@ -23,11 +26,44 @@ export const ProfileSettings = () => {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Simulating API call
-    setTimeout(() => {
+    setMessage({ type: '', text: '' });
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ name })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      // Update local storage user info
+      const updatedUser = { ...user, name };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
+  };
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    if (!newPassword) return;
+    setPassLoading(true);
+    setMessage({ type: '', text: '' });
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      
+      setMessage({ type: 'success', text: 'Password updated successfully!' });
+      setNewPassword('');
+      setCurrentPassword('');
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
+    } finally {
+      setPassLoading(false);
+    }
   };
 
   return (
@@ -94,27 +130,17 @@ export const ProfileSettings = () => {
               </button>
             </form>
 
-            <form className="space-y-6">
+            <form onSubmit={handleUpdatePassword} className="space-y-6">
               <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
                 <Lock className="w-5 h-5 mr-2 text-accent-cyan" />
                 Security
               </h3>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300 ml-1">Current Password</label>
-                <input
-                  type="password"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-accent-cyan transition-all"
-                  placeholder="••••••••"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300 ml-1">New Password</label>
                 <input
                   type="password"
+                  required
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-accent-cyan transition-all"
                   placeholder="••••••••"
                   value={newPassword}
@@ -123,10 +149,12 @@ export const ProfileSettings = () => {
               </div>
 
               <button
-                type="button"
-                className="bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan px-8 py-3 rounded-xl font-bold transition-all"
+                type="submit"
+                disabled={passLoading}
+                className="bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan px-8 py-3 rounded-xl font-bold transition-all flex items-center space-x-2"
               >
-                Update Password
+                {passLoading && <div className="w-5 h-5 border-2 border-accent-cyan/30 border-t-accent-cyan rounded-full animate-spin" />}
+                <span>Update Password</span>
               </button>
             </form>
           </div>

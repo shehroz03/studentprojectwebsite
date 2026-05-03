@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
-import { MessageCircle } from 'lucide-react';
+
+const WHATSAPP_NUMBERS = ['923144219130', '923214261477'];
 
 export const Layout = ({ children }) => {
+  const [waNumber, setWaNumber] = useState(WHATSAPP_NUMBERS[0]);
+
+  useEffect(() => {
+    // Pick randomly between the two numbers when the layout mounts
+    const randomPick = WHATSAPP_NUMBERS[Math.floor(Math.random() * WHATSAPP_NUMBERS.length)];
+    setWaNumber(randomPick);
+  }, []);
+
   return (
     <div className="min-h-screen mesh-gradient flex flex-col relative">
       <Navbar />
@@ -14,7 +23,7 @@ export const Layout = ({ children }) => {
       
       {/* WhatsApp Floating Button */}
       <a 
-        href="https://wa.me/923144219130" 
+        href={`https://wa.me/${waNumber}`}
         target="_blank" 
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 bg-[#25D366] hover:bg-[#128C7E] text-white p-4 rounded-full shadow-lg shadow-[#25D366]/30 transition-all hover:scale-110 z-50 flex items-center justify-center group"

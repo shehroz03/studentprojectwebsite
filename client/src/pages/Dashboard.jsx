@@ -37,20 +37,10 @@ export const Dashboard = () => {
     fetchOrders();
 
     const fetchNotifs = async () => {
-      // Simplistic notification fetch: count messages for this user
-      try {
-        const { count, error } = await supabase
-          .from('messages')
-          .select('*', { count: 'exact', head: true })
-          .eq('receiver_id', user.id);
-        
-        if (!error) setNotifs(prev => ({ ...prev, chat: count || 0 }));
-      } catch (err) {}
+      // Chat removed, can add other notifications here later
     };
 
     fetchNotifs();
-    const timer = setInterval(fetchNotifs, 10000); // 10s polling for chat count
-    return () => clearInterval(timer);
   }, [user, navigate]);
 
   const getStatusColor = (status) => {
@@ -159,7 +149,6 @@ export const Dashboard = () => {
             <div className="glass-card p-6">
               <h3 className="text-lg font-bold text-white mb-6">{t('dashboard','quickLinks')}</h3>
               <div className="space-y-3">
-                <QuickLink to="/chat" icon={<MessageSquare />} label={t('dashboard','supportChat')} count={notifs.chat} />
                 <QuickLink to="/payments" icon={<CreditCard />} label={t('dashboard','payments')} count={notifs.payments} />
                 <QuickLink to="/profile" icon={<User />} label={t('dashboard','profileSettings')} />
               </div>
@@ -170,11 +159,9 @@ export const Dashboard = () => {
               <div className="relative z-10">
                 <h3 className="text-white font-bold mb-2">{t('dashboard','needHelp')}</h3>
                 <p className="text-gray-300 text-sm mb-4">{t('dashboard','helpText')}</p>
-                <Link to="/chat">
-                  <button className="bg-white text-primary px-4 py-2 rounded-xl text-sm font-bold hover:scale-105 transition-transform">
-                    {t('dashboard','contactSupport')}
-                  </button>
-                </Link>
+                <div className="bg-white/10 text-white px-4 py-2 rounded-xl text-sm font-bold inline-block">
+                  Use the WhatsApp icon below
+                </div>
               </div>
               <div className="absolute -bottom-6 -right-6 opacity-10 group-hover:scale-110 transition-transform">
                 <GraduationCap size={120} />

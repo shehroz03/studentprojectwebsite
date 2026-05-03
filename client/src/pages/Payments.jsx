@@ -157,26 +157,50 @@ export const Payments = () => {
             {/* Bank Info */}
             <div className="bg-accent-blue/10 border border-accent-blue/20 rounded-xl p-4 text-sm text-gray-300">
               <div className="font-semibold text-white mb-3">{t('payments','bankDetails')}</div>
-              <div className="space-y-2">
-                <div>Bank: <span className="text-white font-medium">MCB Bank</span></div>
-                <div>Account Name: <span className="text-white font-medium">attaullah</span></div>
+              <div className="space-y-3">
+                {/* JazzCash */}
                 <div className="flex items-center justify-between bg-black/20 p-2 rounded-lg">
-                  <div>Account No: <span className="text-white font-medium">1635940381009310</span></div>
-                  <button onClick={() => handleCopy('1635940381009310', 'acc')} type="button" className="text-accent-cyan hover:text-white transition flex items-center space-x-1">
+                  <div>
+                    <div className="text-white font-medium">JazzCash</div>
+                    <div className="text-xs">Attaullah</div>
+                    <div className="text-white mt-1">03214261477</div>
+                  </div>
+                  <button onClick={() => handleCopy('03214261477', 'jazz')} type="button" className="text-accent-cyan hover:text-white transition flex items-center space-x-1">
                     <Copy className="w-4 h-4" />
-                    <span className="text-[10px]">{copiedText === 'acc' ? 'Copied!' : 'Copy'}</span>
+                    <span className="text-[10px]">{copiedText === 'jazz' ? 'Copied!' : 'Copy'}</span>
                   </button>
                 </div>
+                
+                {/* NayaPay */}
                 <div className="flex items-center justify-between bg-black/20 p-2 rounded-lg">
-                  <div>IBAN: <span className="text-white font-medium">PK20MUCB1635940381009310</span></div>
-                  <button onClick={() => handleCopy('PK20MUCB1635940381009310', 'iban')} type="button" className="text-accent-cyan hover:text-white transition flex items-center space-x-1">
+                  <div>
+                    <div className="text-white font-medium">NayaPay</div>
+                    <div className="text-xs">Shehroz Shafiq</div>
+                    <div className="text-white mt-1">03214261477</div>
+                  </div>
+                  <button onClick={() => handleCopy('03214261477', 'naya')} type="button" className="text-accent-cyan hover:text-white transition flex items-center space-x-1">
                     <Copy className="w-4 h-4" />
-                    <span className="text-[10px]">{copiedText === 'iban' ? 'Copied!' : 'Copy'}</span>
+                    <span className="text-[10px]">{copiedText === 'naya' ? 'Copied!' : 'Copy'}</span>
+                  </button>
+                </div>
+
+                {/* UBL Bank */}
+                <div className="flex items-center justify-between bg-black/20 p-2 rounded-lg">
+                  <div>
+                    <div className="text-white font-medium">UBL Bank</div>
+                    <div className="text-xs">Shehroz Shafiq</div>
+                    <div className="text-white mt-1">326533516</div>
+                  </div>
+                  <button onClick={() => handleCopy('326533516', 'ubl')} type="button" className="text-accent-cyan hover:text-white transition flex items-center space-x-1">
+                    <Copy className="w-4 h-4" />
+                    <span className="text-[10px]">{copiedText === 'ubl' ? 'Copied!' : 'Copy'}</span>
                   </button>
                 </div>
               </div>
-              <div className="mt-4 text-xs text-accent-cyan border-t border-accent-blue/20 pt-2">
+              <div className="mt-4 text-xs text-accent-cyan border-t border-accent-blue/20 pt-3">
                 Send payment in: <span className="font-bold">{currency.name} ({currency.symbol})</span>
+                <br />
+                <span className="text-gray-400 mt-1 block">Please upload your payment screenshot below after transferring.</span>
               </div>
             </div>
 
