@@ -8,6 +8,7 @@ import { OrderSubmission } from './pages/OrderSubmission';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AdminPanel } from './pages/AdminPanel';
+import { AdminLogin } from './pages/AdminLogin';
 import { Payments } from './pages/Payments';
 import { ProfileSettings } from './pages/ProfileSettings';
 
@@ -23,6 +24,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/profile" element={<ProfileSettings />} />
         </Routes>

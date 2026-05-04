@@ -19,7 +19,13 @@ export const Navbar = () => {
   const { lang, setLang, t } = useLang();
   const navigate = useNavigate();
 
-  const user = getUser();
+  const [user, setUser] = useState(() => {
+    try {
+      const raw = localStorage.getItem('user');
+      if (!raw || raw === 'undefined' || raw === 'null') return null;
+      return JSON.parse(raw);
+    } catch { return null; }
+  });
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);

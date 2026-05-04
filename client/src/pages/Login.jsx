@@ -26,11 +26,20 @@ export const Login = () => {
 
   if (user) return null;
 
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    // ── If someone types 'admin' on student login → redirect to admin login page
+    if (email.trim().toLowerCase() === 'admin') {
+      navigate('/admin-login');
+      setLoading(false);
+      return;
+    }
+
+    // ── NORMAL STUDENT LOGIN (Supabase Auth) ──
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
@@ -46,39 +55,23 @@ export const Login = () => {
 
       if (authError) throw authError;
 
-      // Fetch profile to get role
-      const { data: profile, error: profileError } = await supabase
+      // Fetch profile
+      const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', data.user.id)
         .single();
 
-      let userRole = profile?.role || 'user';
-
-      // Auto-promote hardcoded admin emails or specific names
-      if (data.user.email.includes('admin') || profile?.name?.toUpperCase() === 'SHEHROZ') {
-        userRole = 'admin';
-        // Ensure it's updated in the database too
-        await supabase
-          .from('profiles')
-          .update({ role: 'admin' })
-          .eq('id', data.user.id);
-      }
-
+      // Students are ALWAYS 'user' role — admin access is only via hardcoded credentials above
       const loggedUser = {
         id: data.user.id,
         email: data.user.email,
         name: profile?.name || data.user.email.split('@')[0],
-        role: userRole
+        role: 'user'
       };
 
       localStorage.setItem('user', JSON.stringify(loggedUser));
-      
-      if (loggedUser.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || t('login','failed'));
     } finally {
@@ -110,7 +103,7 @@ export const Login = () => {
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
               <input
-                type="email" required
+                type="text" required
                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all"
                 placeholder="email@example.com"
                 value={email}

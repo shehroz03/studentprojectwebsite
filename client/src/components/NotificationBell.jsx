@@ -25,10 +25,12 @@ export const NotificationBell = ({ user }) => {
   };
 
   useEffect(() => {
+    if (!user?.id) return;
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 10000); // Poll every 10s
+    const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
     return () => clearInterval(interval);
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]); // Only re-run when user ID changes, NOT on every render
 
   const markAsRead = async (id) => {
     try {
