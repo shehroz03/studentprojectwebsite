@@ -240,7 +240,7 @@ export const AdminPanel = () => {
                 <p className="text-gray-500 text-sm">Loading data from Supabase...</p>
               </div>
             ) : activeTab === 'orders' ? (
-              <table className="w-full text-left">
+              <table className="w-full text-left table-fixed">
                 <thead>
                   <tr className="text-gray-400 text-sm border-b border-white/5">
                     <th className="px-6 py-4 font-medium">Order &amp; Student</th>
@@ -256,7 +256,7 @@ export const AdminPanel = () => {
                   ) : filteredOrders.map(order => {
                     const student = profiles[order.user_id] || {};
                     return (
-                      <tr key={order.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <tr key={order.id} className="border-b border-white/5 hover:bg-white/5">
                         <td className="px-6 py-5">
                           <div className="text-white font-medium">#{order.id.slice(0, 8)} — {order.title}</div>
                           <div className="text-accent-blue text-xs font-semibold mt-0.5">{student.name || 'Unknown Student'}</div>
@@ -269,14 +269,13 @@ export const AdminPanel = () => {
                         </td>
                         <td className="px-6 py-5">
                           <select
-                            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-white/10 focus:outline-none cursor-pointer bg-gray-800`}
-                            style={{ color: getStatusColorHex(order.status) }}
+                            className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-white/10 focus:outline-none cursor-pointer bg-gray-800 text-white"
                             value={order.status}
                             onChange={e => handleUpdateStatus(order.id, e.target.value)}>
-                            <option value="pending"     style={{ color: '#000', backgroundColor: '#fff' }}>Pending</option>
-                            <option value="in-progress" style={{ color: '#000', backgroundColor: '#fff' }}>In Progress</option>
-                            <option value="completed"   style={{ color: '#000', backgroundColor: '#fff' }}>Completed</option>
-                            <option value="rejected"    style={{ color: '#000', backgroundColor: '#fff' }}>Rejected</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="rejected">Rejected</option>
                           </select>
                         </td>
                         <td className="px-6 py-5 text-right">
@@ -293,7 +292,7 @@ export const AdminPanel = () => {
                 </tbody>
               </table>
             ) : (
-              <table className="w-full text-left">
+              <table className="w-full text-left table-fixed">
                 <thead>
                   <tr className="text-gray-400 text-sm border-b border-white/5">
                     <th className="px-6 py-4 font-medium">Payment &amp; Student</th>
@@ -309,7 +308,7 @@ export const AdminPanel = () => {
                   ) : filteredPayments.map(payment => {
                     const student = profiles[payment.user_id] || {};
                     return (
-                      <tr key={payment.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <tr key={payment.id} className="border-b border-white/5 hover:bg-white/5">
                         <td className="px-6 py-5">
                           <div className="text-white font-medium">Payment #{payment.id.slice(0, 8)}</div>
                           <div className="text-accent-blue text-xs font-semibold mt-0.5">{student.name || 'Unknown Student'}</div>
@@ -320,13 +319,12 @@ export const AdminPanel = () => {
                         </td>
                         <td className="px-6 py-5">
                           <select
-                            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-white/10 focus:outline-none cursor-pointer bg-gray-800`}
-                            style={{ color: getStatusColorHex(payment.status) }}
+                            className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-white/10 focus:outline-none cursor-pointer bg-gray-800 text-white"
                             value={payment.status}
                             onChange={e => handleUpdatePaymentStatus(payment.id, e.target.value)}>
-                            <option value="pending"  style={{ color: '#000', backgroundColor: '#fff' }}>Pending</option>
-                            <option value="verified" style={{ color: '#000', backgroundColor: '#fff' }}>Verified</option>
-                            <option value="rejected" style={{ color: '#000', backgroundColor: '#fff' }}>Rejected</option>
+                            <option value="pending">Pending</option>
+                            <option value="verified">Verified</option>
+                            <option value="rejected">Rejected</option>
                           </select>
                         </td>
                         <td className="px-6 py-5 text-right">
