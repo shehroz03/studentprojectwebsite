@@ -41,10 +41,18 @@ export const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    localStorage.removeItem('user');
-    navigate('/');
-    window.location.reload();
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (err) {
+      console.error('Logout error:', err.message);
+    } finally {
+      localStorage.removeItem('user');
+      setUser(null);
+      setShowLangMenu(false);
+      setIsMobileMenuOpen(false);
+      navigate(user?.role === 'admin' ? '/admin-login' : '/login');
+    }
   };
 
   const currentLang = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0];
