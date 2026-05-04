@@ -199,21 +199,21 @@ export const AdminPanel = () => {
         </div>
 
         {/* Table card */}
-        <div className="glass-card overflow-hidden">
-          <div className="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="glass-card overflow-hidden transition-none">
+          <div className="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 transition-none">
             {/* Tab buttons */}
             <div className="flex space-x-4 w-full md:w-auto">
               <button
                 onClick={() => { setActiveTab('orders');   setFilter('all'); }}
-                className={`px-6 py-2 rounded-xl font-bold transition-all flex-1 md:flex-none ${
-                  activeTab === 'orders' ? 'bg-accent-blue text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                className={`px-6 py-2 rounded-xl font-bold flex-1 md:flex-none ${
+                  activeTab === 'orders' ? 'bg-accent-blue text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 text-gray-400'
                 }`}>
                 Orders ({orders.length})
               </button>
               <button
                 onClick={() => { setActiveTab('payments'); setFilter('all'); }}
-                className={`px-6 py-2 rounded-xl font-bold transition-all flex-1 md:flex-none ${
-                  activeTab === 'payments' ? 'bg-accent-blue text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                className={`px-6 py-2 rounded-xl font-bold flex-1 md:flex-none ${
+                  activeTab === 'payments' ? 'bg-accent-blue text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 text-gray-400'
                 }`}>
                 Payments ({payments.length})
               </button>
@@ -233,7 +233,7 @@ export const AdminPanel = () => {
             </select>
           </div>
 
-          <div className="overflow-x-auto min-h-[320px]">
+          <div className="overflow-x-auto min-h-[560px] transition-none">
             {loading ? (
               <div className="p-20 text-center">
                 <div className="w-10 h-10 border-2 border-white/10 border-t-accent-blue rounded-full animate-spin mx-auto mb-4" />
@@ -366,7 +366,7 @@ export const AdminPanel = () => {
                 {selectedOrder.attachment_url && (
                   <div className="pt-4 border-t border-white/10">
                     <a href={selectedOrder.attachment_url} target="_blank" rel="noreferrer"
-                      className="inline-flex items-center space-x-2 bg-accent-blue/10 text-accent-blue px-4 py-2 rounded-lg hover:bg-accent-blue/20 transition-colors text-sm font-bold w-full justify-center">
+                      className="inline-flex items-center space-x-2 bg-accent-blue/10 text-accent-blue px-4 py-2 rounded-lg text-sm font-bold w-full justify-center transition-none">
                       <Download className="w-4 h-4" /><span>Download Student Attachment</span>
                     </a>
                   </div>
@@ -379,7 +379,7 @@ export const AdminPanel = () => {
                     <input type="file" name="delivery_file" required
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-300" />
                     <button type="submit" disabled={loading}
-                      className="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold transition-all shadow-lg shadow-green-600/20">
+                      className="w-full bg-green-600 py-3 rounded-xl font-bold shadow-lg shadow-green-600/20 transition-none">
                       {loading ? 'Uploading...' : 'Deliver to Student'}
                     </button>
                   </form>
@@ -465,7 +465,7 @@ const Modal = ({ title, children, onClose }) => (
       <div className="flex items-center justify-between p-6 border-b border-white/10">
         <h2 className="text-xl font-bold text-white">{title}</h2>
         <button onClick={onClose}
-          className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors">
+          className="p-2 rounded-full text-gray-400 transition-none">
           <X className="w-5 h-5" />
         </button>
       </div>
