@@ -233,7 +233,7 @@ export const AdminPanel = () => {
             </select>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[320px]">
             {loading ? (
               <div className="p-20 text-center">
                 <div className="w-10 h-10 border-2 border-white/10 border-t-accent-blue rounded-full animate-spin mx-auto mb-4" />
@@ -256,7 +256,7 @@ export const AdminPanel = () => {
                   ) : filteredOrders.map(order => {
                     const student = profiles[order.user_id] || {};
                     return (
-                      <tr key={order.id} className="border-b border-white/5 hover:bg-white/5">
+                      <tr key={order.id} className="border-b border-white/5">
                         <td className="px-6 py-5">
                           <div className="text-white font-medium">#{order.id.slice(0, 8)} — {order.title}</div>
                           <div className="text-accent-blue text-xs font-semibold mt-0.5">{student.name || 'Unknown Student'}</div>
@@ -281,7 +281,7 @@ export const AdminPanel = () => {
                         <td className="px-6 py-5 text-right">
                           <button
                             onClick={() => setSelectedOrder(order)}
-                            className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
+                            className="p-2 rounded-lg text-gray-400"
                             title="View &amp; Deliver">
                             <Eye className="w-4 h-4" />
                           </button>
@@ -308,7 +308,7 @@ export const AdminPanel = () => {
                   ) : filteredPayments.map(payment => {
                     const student = profiles[payment.user_id] || {};
                     return (
-                      <tr key={payment.id} className="border-b border-white/5 hover:bg-white/5">
+                      <tr key={payment.id} className="border-b border-white/5">
                         <td className="px-6 py-5">
                           <div className="text-white font-medium">Payment #{payment.id.slice(0, 8)}</div>
                           <div className="text-accent-blue text-xs font-semibold mt-0.5">{student.name || 'Unknown Student'}</div>
@@ -330,7 +330,7 @@ export const AdminPanel = () => {
                         <td className="px-6 py-5 text-right">
                           <button
                             onClick={() => setSelectedPayment(payment)}
-                            className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
+                            className="p-2 rounded-lg text-gray-400"
                             title="View Proof">
                             <Eye className="w-4 h-4" />
                           </button>
